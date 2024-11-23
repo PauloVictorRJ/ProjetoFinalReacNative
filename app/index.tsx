@@ -8,7 +8,6 @@ import { calculateRegion } from "@/utils/calculateRegion";
 import { getLocation } from "@/utils/requestLocationPermission";
 
 export default function Maps() {
-
     const [message, setMessage] = useState<string | null>(null);
     const [location, setLocation] = useState<Location.LocationObject | null>(null);
     const [markers, setMarkers] = useState<Array<LatLng>>([]);
@@ -46,6 +45,18 @@ export default function Maps() {
 
     const region = calculateRegion(location);
 
+    const handleMapPress = async (mapPress: MapPressEvent) => {
+        const { coordinate } = mapPress.nativeEvent;
+        const markersStorage = await AsyncStorage.getItem('markers');
+        let markersList: Array<LatLng> = [];
+        if (markersStorage) {
+            markersList = JSON.parse(markersStorage);
+        }
+        markersList.push(coordinate);
+        await AsyncStorage.setItem('markers', JSON.stringify(markersList));
+        setMarkers(markersList);
+    };
+
     return (
         <View>
             <AppBarComponent
@@ -55,16 +66,7 @@ export default function Maps() {
                     showsUserLocation
                     style={styles.locationMapView}
                     region={region}
-                    onPress={async (mapPress: MapPressEvent) => {
-                        const { coordinate } = mapPress.nativeEvent;
-                        const markersStorage = await AsyncStorage.getItem('markers');
-                        let markersList: Array<LatLng> = [];
-                        if (markersStorage)
-                            markersList = JSON.parse(markersStorage);
-                        markersList.push(coordinate);
-                        AsyncStorage.setItem('markers', JSON.stringify(markersList));
-                        setMarkers(markersList);
-                    }}
+                    onPress={handleMapPress}
                 >
                     {markers.map((marker, key) => (
                         <Marker
