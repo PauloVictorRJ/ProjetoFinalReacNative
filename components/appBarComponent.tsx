@@ -5,25 +5,31 @@ import { router } from 'expo-router';
 
 interface AppBarComponentProps {
     title: string;
-
+    showBack: boolean
+    showList: boolean
 }
 
 export default function AppBarComponent({
-    title
+    title,
+    showBack,
+    showList
 }: AppBarComponentProps) {
 
     const MenuAction = () => {
-        router.push('/listaMarcadores')
+        router.push('/listMarkers')
+    }
+
+    const BackAction = () => {
+        router.back()
     }
 
     return (
         <Appbar.Header style={styles.appBar}>
-            <Appbar.BackAction onPress={() => { }} />
+            {showBack && <Appbar.BackAction onPress={BackAction} />}
             <Appbar.Content
                 title={title}
-                titleStyle={styles.title}
-            />
-            <Appbar.Action icon="menu" onPress={ MenuAction } />
+                titleStyle={styles.title} />
+            {showList && <Appbar.Action icon="menu" onPress={MenuAction} />}
         </Appbar.Header>
     )
 }

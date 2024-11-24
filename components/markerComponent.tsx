@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 interface MarkerComponentProps {
     nome: string;
@@ -8,19 +8,23 @@ interface MarkerComponentProps {
         longitude: number;
     };
     cor: string;
+    onPress: () => void
 }
 
 export default function MarkerComponent({
     nome,
     latLng,
     cor,
+    onPress
 }: MarkerComponentProps) {
     return (
-        <View style={[styles.container, { backgroundColor: cor }]}>
-            <Text style={styles.title}>{nome}</Text>
-            <Text style={styles.text}>Latitude: {latLng.latitude}</Text>
-            <Text style={styles.text}>Longitude: {latLng.longitude}</Text>
-        </View>
+        <TouchableOpacity onPress={onPress}>
+            <View style={[styles.container, { backgroundColor: cor }]}>
+                <Text style={styles.title}>{nome}</Text>
+                <Text style={styles.text}>Latitude: {latLng.latitude}</Text>
+                <Text style={styles.text}>Longitude: {latLng.longitude}</Text>
+            </View>
+        </TouchableOpacity>
     );
 };
 
