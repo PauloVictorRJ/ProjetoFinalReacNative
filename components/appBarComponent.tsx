@@ -1,10 +1,10 @@
-import * as React from 'react';
-import { Appbar } from 'react-native-paper';
-import { StyleSheet } from 'react-native';
-import { router } from 'expo-router';
+import * as React from 'react'
+import { Appbar } from 'react-native-paper'
+import { StyleSheet } from 'react-native'
+import { router } from 'expo-router'
 
 interface AppBarComponentProps {
-    title: string;
+    title: string
     showBack: boolean
     showList: boolean
 }

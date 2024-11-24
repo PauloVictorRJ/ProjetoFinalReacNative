@@ -1,13 +1,13 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React from 'react'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 
 interface MarkerComponentProps {
-    nome: string;
+    nome: string
     latLng: {
-        latitude: number;
-        longitude: number;
+        latitude: number
+        longitude: number
     };
-    cor: string;
+    cor: string
     onPress: () => void
 }
 
@@ -25,8 +25,8 @@ export default function MarkerComponent({
                 <Text style={styles.text}>Longitude: {latLng.longitude}</Text>
             </View>
         </TouchableOpacity>
-    );
-};
+    )
+}
 
 const styles = StyleSheet.create({
     container: {
@@ -42,4 +42,4 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginTop: 4,
     },
-});
+})

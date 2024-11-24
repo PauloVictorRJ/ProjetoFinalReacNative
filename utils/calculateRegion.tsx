@@ -1,4 +1,4 @@
-import { LocationObject } from "expo-location";
+import { LocationObject } from "expo-location"
 
 export function calculateRegion(location: LocationObject): { latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number } {
     return {
@@ -6,5 +6,5 @@ export function calculateRegion(location: LocationObject): { latitude: number; l
         longitude: location.coords.longitude,
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
-    };
+    }
 }

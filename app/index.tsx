@@ -1,17 +1,20 @@
-import { Text, View, StyleSheet, Pressable } from "react-native"
+import { Text, View, StyleSheet, Pressable, useWindowDimensions, FlatList } from "react-native"
 import * as Location from 'expo-location'
-import MapView, { Marker, MapPressEvent, LatLng } from 'react-native-maps'
+import MapView, { Marker, MapPressEvent } from 'react-native-maps'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useEffect, useState } from "react"
 import AppBarComponent from "@/components/appBarComponent"
 import { calculateRegion } from "@/utils/calculateRegion"
 import { getLocation } from "@/utils/requestLocationPermission"
 import { router } from "expo-router"
+import MarkerComponent from "@/components/markerComponent"
 
 export default function Maps() {
     const [message, setMessage] = useState<string | null>(null)
     const [location, setLocation] = useState<Location.LocationObject | null>(null)
     const [markers, setMarkers] = useState<Array<any>>([])
+    const { width, height } = useWindowDimensions()
+    const isTabletLandscape = width > height && width >= 768
 
     useEffect(() => {
         const fetchLocation = async () => {
@@ -73,17 +76,34 @@ export default function Maps() {
     }
 
     return (
-        <View>
+        <View style={styles.fullContainer}>
             <AppBarComponent
                 title="Projeto Final - React Native"
                 showBack={false}
-                showList={true} />
-            <View style={styles.container}>
+                showList={true}
+            />
+            <View style={[styles.container, isTabletLandscape && styles.tabletContainer]}>
+                {isTabletLandscape && (
+                    <FlatList
+                        data={markers}
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={({ item, index }) => (
+                            <MarkerComponent
+                                onPress={() => markerPress(index)}
+                                nome={item.nome}
+                                latLng={item.latLng}
+                                cor={item.cor}
+                            />
+                        )}
+                        contentContainerStyle={styles.contentContainer}
+                    />
+                )}
                 <MapView
                     showsUserLocation
-                    style={styles.locationMapView}
+                    style={[styles.locationMapView, isTabletLandscape && styles.tabletMapView]}
                     region={region}
-                    onPress={handleMapPress}>
+                    onPress={handleMapPress}
+                >
                     {markers.map((marker, index) => {
                         if (!marker.latLng) {
                             return null;
@@ -94,9 +114,9 @@ export default function Maps() {
                                 onPress={() => markerPress(index)}
                                 coordinate={marker.latLng}
                                 pinColor={marker.cor}
-                                key={index}>
-                            </Marker>
-                        );
+                                key={index}
+                            />
+                        )
                     })}
                 </MapView>
             </View>
@@ -104,17 +124,37 @@ export default function Maps() {
                 <Text style={styles.fabText}>+</Text>
             </Pressable>
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
+    contentContainer: {
+        paddingBottom: 40,
+    },
+    fullContainer: {
+        flex: 1,
+    },
     container: {
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    tabletContainer: {
+        flexDirection: 'row',
     },
     locationMapView: {
         height: "95%",
         width: "95%",
+    },
+    tabletMapView: {
+        height: "100%",
+        width: "50%",
+    },
+    infoPanel: {
+        width: "50%",
+        backgroundColor: '#f0f0f0',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     fab: {
         position: 'absolute',
@@ -129,5 +169,5 @@ const styles = StyleSheet.create({
     fabText: {
         fontSize: 20,
         alignSelf: 'center',
-    }
+    },
 })
