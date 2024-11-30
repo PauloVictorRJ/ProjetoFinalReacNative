@@ -8,6 +8,7 @@ import { calculateRegion } from "@/utils/calculateRegion"
 import { getLocation } from "@/utils/requestLocationPermission"
 import { router } from "expo-router"
 import MarkerComponent from "@/components/markerComponent"
+import { colorConstants, fontConstants } from "@/styles/Global.styles"
 
 export default function Maps() {
     const [message, setMessage] = useState<string | null>(null)
@@ -132,6 +133,7 @@ const styles = StyleSheet.create({
         paddingBottom: 40,
     },
     fullContainer: {
+        backgroundColor: colorConstants.backgroundColor,
         flex: 1,
     },
     container: {

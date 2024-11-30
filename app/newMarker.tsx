@@ -1,11 +1,14 @@
 import AppBarComponent from "@/components/appBarComponent"
+import { select_all_markers, table_name } from "@/database/AppDatabase"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { Picker } from "@react-native-picker/picker"
 import { router } from "expo-router"
+import { useSQLiteContext } from "expo-sqlite"
 import { useState } from "react"
 import { Pressable, Text, TextInput, View, StyleSheet, Alert } from "react-native"
 
 export default function NewMarker() {
+    const db = useSQLiteContext()
     const [inputColors, setInputColors] = useState("")
     const [inputNome, setInputNome] = useState("")
     const [inputLatitude, setInputLatitude] = useState("")
@@ -44,6 +47,7 @@ export default function NewMarker() {
             const parsedMarkers = markersStorage ? JSON.parse(markersStorage) : []
             parsedMarkers.push(newMarker)
             await AsyncStorage.setItem("markers", JSON.stringify(parsedMarkers))
+            await saveMarkerOnSQLite(newMarker)
             router.back()
             Alert.alert("Sucesso", "O marcador foi salvo com sucesso.")
         } catch (error) {
@@ -51,6 +55,22 @@ export default function NewMarker() {
         }
     }
 
+    const saveMarkerOnSQLite = async (marker: { nome: string; cor: string; latLng: { latitude: number; longitude: number } }) => {
+        await db.execAsync(`DELETE FROM ${table_name}`)
+        try {
+            await db.runAsync(
+                `INSERT INTO ${table_name} (nome, cor, latitude, longitude) VALUES (?, ?, ?, ?)`,
+                [marker.nome, marker.cor, marker.latLng.latitude, marker.latLng.longitude]
+            )
+            const teste = await db.getAllAsync(select_all_markers)
+
+            console.log(teste)
+        } catch (error) {
+            console.error("Erro ao salvar no SQLite:", error)
+            Alert.alert("Erro", "Não foi possível salvar o marcador no banco de dados.")
+        }
+    }
+    
     return (
         <View>
             <AppBarComponent

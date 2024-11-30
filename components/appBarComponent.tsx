@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Appbar } from 'react-native-paper'
 import { StyleSheet } from 'react-native'
 import { router } from 'expo-router'
+import { fontConstants } from '@/styles/Global.styles'
 
 interface AppBarComponentProps {
     title: string
@@ -40,6 +41,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'orange'
     },
     title: {
-        fontSize: 15
+        fontSize: 18,
+        fontFamily: fontConstants.fontFamilyMystery
     }
 })
