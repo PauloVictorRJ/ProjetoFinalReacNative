@@ -8,6 +8,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { Slot } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
 import { database_name, migrateDb } from '@/database/AppDatabase';
+import UserProvider from '@/store/UserStore';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -30,10 +31,12 @@ export default function RootLayout() {
   }
 
   return (
-    <SQLiteProvider databaseName={database_name} onInit={migrateDb}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Slot />
-      </ThemeProvider>
-    </SQLiteProvider>
+    <UserProvider>
+      <SQLiteProvider databaseName={database_name} onInit={migrateDb}>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <Slot />
+        </ThemeProvider>
+      </SQLiteProvider>
+    </UserProvider>
   );
 }
