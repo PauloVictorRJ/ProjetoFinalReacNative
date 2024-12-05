@@ -1,22 +1,34 @@
 import { useState } from "react";
-import { TextInput, Text, View, TouchableOpacity } from "react-native";
+import { TextInput, Text, View, TouchableOpacity, StyleSheet } from "react-native";
+// @ts-ignore
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-export default function InputCustomUserPassword({ placeholder, value, setValue, minLenght, showError
+export default function InputCustomUserPassword({ 
+    placeholder, 
+    value, 
+    setValue, 
+    minLength, 
+    showError, 
+    editable = true 
 }: any) {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
     return (
-        <View style={{ width: '100%', marginBottom: 20, paddingHorizontal: 10 }}>
-            <View style={[{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 10 }]}>
+        <View style={styles.container}>
+            <View style={styles.inputWrapper}>
                 <TextInput
                     placeholder={placeholder}
                     value={value}
                     onChangeText={setValue}
                     secureTextEntry={!isPasswordVisible}
-                    style={{ flex: 1 }}
+                    style={[styles.input, !editable && styles.inputDisabled]}
+                    editable={editable}
+                    placeholderTextColor="#888"
                 />
-                <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} style={{ paddingHorizontal: 10 }}>
+                <TouchableOpacity 
+                    onPress={() => setIsPasswordVisible(!isPasswordVisible)} 
+                    style={styles.iconWrapper}
+                >
                     <Icon
                         name={isPasswordVisible ? 'visibility' : 'visibility-off'}
                         size={24}
@@ -24,11 +36,50 @@ export default function InputCustomUserPassword({ placeholder, value, setValue, 
                     />
                 </TouchableOpacity>
             </View>
-            <View style={{ height: 20 }}>
+            <View style={styles.errorContainer}>
                 {showError && (
-                    <Text style={{ color: 'red' }}>A senha deve ter no mínimo {minLenght} caracteres</Text>
+                    <Text style={styles.errorText}>
+                        A senha deve ter no mínimo {minLength} caracteres
+                    </Text>
                 )}
             </View>
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        width: '100%',
+        marginBottom: 20,
+        paddingHorizontal: 10,
+    },
+    inputWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f0f0f0', // Cor de fundo para facilitar a digitação
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        paddingHorizontal: 10,
+    },
+    input: {
+        flex: 1,
+        paddingVertical: 12,
+        fontSize: 16,
+    },
+    inputDisabled: {
+        backgroundColor: '#e0e0e0',
+        color: '#999',
+    },
+    iconWrapper: {
+        paddingHorizontal: 10,
+    },
+    errorContainer: {
+        height: 20,
+        justifyContent: 'center',
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 12,
+    },
+});
