@@ -1,6 +1,6 @@
 import env from '@/constants/env';
 
-export const signInWithPassword = async (email: string, password: string) => {
+export default async function signInWithPassword(email: string, password: string) {
     const apiKey = env.API_KEY;
     const apiURL = env.API_URL;
 
@@ -22,4 +22,4 @@ export const signInWithPassword = async (email: string, password: string) => {
     } catch (error: any) {
         throw new Error(error.message);
     }
-};
+}

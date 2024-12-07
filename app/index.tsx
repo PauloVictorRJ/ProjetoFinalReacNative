@@ -6,8 +6,7 @@ import { router } from 'expo-router';
 import { Alert, ActivityIndicator } from 'react-native';
 import logo from '@/assets/images/infnet.png';
 import { UserActionType, UserContext, UserDispacthContext } from '@/store/UserStore';
-import { signInWithPassword } from './apiAuthService';
-
+import signInWithPassword from './apiAuthService';
 
 export default function Login() {
     const [isLoading, setLoading] = useState(false);

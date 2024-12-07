@@ -6,6 +6,7 @@ import { router } from "expo-router"
 import { useSQLiteContext } from "expo-sqlite"
 import { useState } from "react"
 import { Pressable, Text, TextInput, View, StyleSheet, Alert } from "react-native"
+import env from '@/constants/env';
 
 export default function NewMarker() {
     const db = useSQLiteContext()
@@ -48,6 +49,7 @@ export default function NewMarker() {
             parsedMarkers.push(newMarker)
             await AsyncStorage.setItem("markers", JSON.stringify(parsedMarkers))
             await saveMarkerOnSQLite(newMarker)
+            await saveMarkerOnFirebase(newMarker)
             router.back()
             Alert.alert("Sucesso", "O marcador foi salvo com sucesso.")
         } catch (error) {
@@ -56,7 +58,6 @@ export default function NewMarker() {
     }
 
     const saveMarkerOnSQLite = async (marker: { nome: string; cor: string; latLng: { latitude: number; longitude: number } }) => {
-        await db.execAsync(`DELETE FROM ${table_name}`)
         try {
             await db.runAsync(
                 `INSERT INTO ${table_name} (nome, cor, latitude, longitude) VALUES (?, ?, ?, ?)`,
@@ -70,7 +71,24 @@ export default function NewMarker() {
             Alert.alert("Erro", "Não foi possível salvar o marcador no banco de dados.")
         }
     }
-    
+
+    const saveMarkerOnFirebase = async (marker: { nome: string; cor: string; latLng: { latitude: number; longitude: number } }) => {
+        try {
+            await fetch(`${env.DB_URL}/markers.json`, {
+                method: 'POST',
+                headers: { 'Content-type': 'application/json' },
+                body: JSON.stringify(
+                    [marker.nome, marker.cor, marker.latLng.latitude, marker.latLng.longitude]
+                )
+            })
+
+            //console.log(teste)
+        } catch (error) {
+            console.error("Erro ao salvar no Firebase:", error)
+            Alert.alert("Erro", "Não foi possível salvar o marcador no banco de dados.")
+        }
+    }
+
     return (
         <View>
             <AppBarComponent

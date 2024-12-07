@@ -8,16 +8,58 @@ import { calculateRegion } from "@/utils/calculateRegion"
 import { getLocation } from "@/utils/requestLocationPermission"
 import { router } from "expo-router"
 import MarkerComponent from "@/components/markerComponent"
-import { colorConstants, fontConstants } from "@/styles/Global.styles"
+import { colorConstants } from "@/styles/Global.styles"
 import { UserContext } from "@/store/UserStore"
+import env from '@/constants/env';
+import { ActivityIndicator } from "react-native-paper"
 
 export default function Maps() {
     const userAuth = useContext(UserContext)
+
+    const { width, height } = useWindowDimensions()
+    const isTabletLandscape = width > height && width >= 768
+
     const [message, setMessage] = useState<string | null>(null)
     const [location, setLocation] = useState<Location.LocationObject | null>(null)
     const [markers, setMarkers] = useState<Array<any>>([])
-    const { width, height } = useWindowDimensions()
-    const isTabletLandscape = width > height && width >= 768
+    const [isLoading, setLoading] = useState(false)
+    const [requestMessage, setRequestMessage] = useState<String | null>(null)
+
+    const getMarkersApi = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch(`${env.DB_URL}/markers.json`);
+            if (!response.ok) {
+                throw new Error(`Erro na requisição: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log("Dados recebidos:", data);
+
+            const markers = Object.keys(data).map(key => ({
+                id: key,
+                nome: data[key][0],
+                cor: data[key][1],
+                latLng: {
+                    latitude: data[key][2],
+                    longitude: data[key][3],
+                },
+            }));
+
+            setMarkers(markers);
+        } catch (error) {
+            const errorMessage = (error as Error).message;
+            console.error("Erro ao obter marcadores:", errorMessage);
+            setRequestMessage(errorMessage);
+        }
+        finally {
+            setLoading(false);
+        }
+    };
+
+
+    useEffect(() => {
+        getMarkersApi()
+    }, [])
 
     useEffect(() => {
         const fetchLocation = async () => {
@@ -31,16 +73,16 @@ export default function Maps() {
         fetchLocation()
     }, [])
 
-    useEffect(() => {
-        (async () => {
-            const markersStorage = await AsyncStorage.getItem('markers')
-            let markersList: Array<any> = []
-            if (markersStorage) {
-                markersList = JSON.parse(markersStorage)
-                setMarkers(markersList)
-            }
-        })()
-    }, [])
+    // useEffect(() => {
+    //     (async () => {
+    //         const markersStorage = await AsyncStorage.getItem('markers')
+    //         let markersList: Array<any> = []
+    //         if (markersStorage) {
+    //             markersList = JSON.parse(markersStorage)
+    //             setMarkers(markersList)
+    //         }
+    //     })()
+    // }, [])
 
     if (message) {
         return <Text>{message}</Text>
@@ -86,6 +128,8 @@ export default function Maps() {
                 showList={true}
             />
             <View style={[styles.container, isTabletLandscape && styles.tabletContainer]}>
+                {isLoading && <ActivityIndicator size={'large'} />}
+                {requestMessage && <Text>message</Text>}
                 {isTabletLandscape && (
                     <FlatList
                         data={markers}
