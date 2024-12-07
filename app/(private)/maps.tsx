@@ -13,6 +13,10 @@ import { UserContext } from "@/store/UserStore"
 import env from '@/constants/env';
 import { ActivityIndicator } from "react-native-paper"
 
+// fetch delete
+// refreshingAction
+//
+
 export default function Maps() {
     const userAuth = useContext(UserContext)
 
