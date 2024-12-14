@@ -91,8 +91,8 @@ export default function Login() {
                         editable={!isLoading}
                     />
                     {!isLoading && (
-                        <Button onPress={loginAction} accessibilityLabel="Cadastrar">
-                            <ButtonText>Cadastrar</ButtonText>
+                        <Button onPress={loginAction} accessibilityLabel="Login">
+                            <ButtonText>Login</ButtonText>
                         </Button>
                     )}
                     {isLoading && <ActivityIndicator size="large" />}
