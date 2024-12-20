@@ -1,12 +1,13 @@
+import { colorConstants } from "@/styles/Global.styles";
 import { TextInput, Text, View, StyleSheet } from "react-native";
 
-export default function InputCustomUserName({ 
-    placeholder, 
-    value, 
-    setValue, 
-    minLength, 
-    showError, 
-    editable = true 
+export default function InputCustomUserName({
+    placeholder,
+    value,
+    setValue,
+    minLength,
+    showError,
+    editable = true
 }: any) {
     return (
         <View style={styles.container}>
@@ -16,7 +17,7 @@ export default function InputCustomUserName({
                 onChangeText={setValue}
                 style={[styles.input, !editable && styles.inputDisabled]}
                 editable={editable}
-                placeholderTextColor="#888"
+                placeholderTextColor={colorConstants.formTextColor}
             />
             <View style={styles.errorContainer}>
                 {showError && (
@@ -36,12 +37,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
     },
     input: {
-        backgroundColor: '#f0f0f0',
+        backgroundColor: colorConstants.formBackgroundColor,
         borderRadius: 8,
         padding: 12,
         fontSize: 16,
         borderWidth: 1,
         borderColor: '#ccc',
+        color: colorConstants.formTextColor
     },
     inputDisabled: {
         backgroundColor: '#e0e0e0',
@@ -52,7 +54,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     errorText: {
-        color: 'red',
+        color: colorConstants.formTextWarningColor,
         fontSize: 12,
     },
 })

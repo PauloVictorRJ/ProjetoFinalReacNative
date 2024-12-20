@@ -1,15 +1,16 @@
+import { colorConstants } from "@/styles/Global.styles";
 import { useState } from "react";
 import { TextInput, Text, View, TouchableOpacity, StyleSheet } from "react-native";
 // @ts-ignore
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-export default function InputCustomUserPassword({ 
-    placeholder, 
-    value, 
-    setValue, 
-    minLength, 
-    showError, 
-    editable = true 
+export default function InputCustomUserPassword({
+    placeholder,
+    value,
+    setValue,
+    minLength,
+    showError,
+    editable = true
 }: any) {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -23,10 +24,10 @@ export default function InputCustomUserPassword({
                     secureTextEntry={!isPasswordVisible}
                     style={[styles.input, !editable && styles.inputDisabled]}
                     editable={editable}
-                    placeholderTextColor="#888"
+                    placeholderTextColor={colorConstants.formTextColor}
                 />
-                <TouchableOpacity 
-                    onPress={() => setIsPasswordVisible(!isPasswordVisible)} 
+                <TouchableOpacity
+                    onPress={() => setIsPasswordVisible(!isPasswordVisible)}
                     style={styles.iconWrapper}
                 >
                     <Icon
@@ -56,7 +57,7 @@ const styles = StyleSheet.create({
     inputWrapper: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#f0f0f0', // Cor de fundo para facilitar a digitação
+        backgroundColor: colorConstants.formBackgroundColor,
         borderRadius: 8,
         borderWidth: 1,
         borderColor: '#ccc',
@@ -66,6 +67,7 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingVertical: 12,
         fontSize: 16,
+        color: colorConstants.formTextColor
     },
     inputDisabled: {
         backgroundColor: '#e0e0e0',
@@ -79,7 +81,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     errorText: {
-        color: 'red',
+        color: colorConstants.formTextWarningColor,
         fontSize: 12,
     },
 });

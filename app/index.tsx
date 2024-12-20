@@ -1,19 +1,22 @@
 import styled from 'styled-components/native';
-import InputCustomUserName from '@/components/InputCustomUserName';
-import InputCustomUserPassword from '@/components/InputCustomUserPassword';
-import { useContext, useState } from 'react';
+import InputCustomUserName from '../components/InputCustomUserName';
+import InputCustomUserPassword from '../components/InputCustomUserPassword';
+import React, { useContext, useState } from 'react';
 import { router } from 'expo-router';
-import { Alert, ActivityIndicator } from 'react-native';
-import logo from '@/assets/images/infnet.png';
-import { UserActionType, UserContext, UserDispacthContext } from '@/store/UserStore';
+import { Alert, ActivityIndicator, StyleSheet, SafeAreaView, View, TouchableOpacity, Text } from 'react-native';
+import logo from '../assets/images/infnet.png';
+import { UserActionType, UserContext, UserDispacthContext } from '../store/UserStore';
 import signInWithPassword from './apiAuthService';
+import { colorConstants } from "../styles/Global.styles"
 
 export default function Login() {
-    const [isLoading, setLoading] = useState(false);
     const MIN_USERNAME_LENGTH = 8;
     const MIN_PASSWORD_LENGTH = 6;
+
     const userAuth = useContext(UserContext);
     const userAuthDispatch = useContext(UserDispacthContext);
+
+    const [isLoading, setLoading] = useState(false);
     const [userEmail, setUserEmail] = useState(userAuth?.email ?? '');
     const [userPassword, setPassword] = useState(userAuth?.password ?? '');
     const [showUserError, setShowUserError] = useState(false);
@@ -43,24 +46,26 @@ export default function Login() {
         if (isUserNameValid && isPasswordValid) {
             try {
                 const { status, data } = await signInWithPassword(userEmail, userPassword);
-
-                if (status === 200) {
-                    userAuthDispatch({
-                        type: UserActionType.LOGAR,
-                        user: {
-                            email: data.email,
-                            password: userPassword,
-                            token: data.idToken
-                        },
-                    });
-                    router.push('/(private)/maps');
-                } else if (status === 400) {
-                    Alert.alert(`${data.error.message}`);
-                } else {
-                    Alert.alert(`Status ${status}`);
+                switch (status) {
+                    case 200:
+                        userAuthDispatch({
+                            type: UserActionType.LOGAR,
+                            user: {
+                                email: data.email,
+                                password: userPassword,
+                                token: data.idToken
+                            },
+                        });
+                        router.push('/(private)/maps');
+                        break;
+                    case 400:
+                        Alert.alert('Erro', data.error.message);
+                        break;
+                    default:
+                        Alert.alert('Erro', `Status inesperado: ${status}`);
                 }
             } catch (error: any) {
-                Alert.alert('Erro', error.message);
+                Alert.alert('Erro', error?.message || 'Ocorreu um erro desconhecido');
             } finally {
                 setLoading(false);
             }
@@ -68,12 +73,12 @@ export default function Login() {
     };
 
     return (
-        <SafeArea>
-            <Container>
-                <LogoContainer>
+        <SafeAreaView style={styles.safeArea}>
+            <View style={styles.container}>
+                <View style={styles.logoContainer}>
                     <Logo source={logo} resizeMode="contain" />
-                </LogoContainer>
-                <FormContainer>
+                </View>
+                <View style={styles.formContainer}>
                     <InputCustomUserName
                         placeholder="Digite seu usuário"
                         value={userEmail}
@@ -91,52 +96,50 @@ export default function Login() {
                         editable={!isLoading}
                     />
                     {!isLoading && (
-                        <Button onPress={loginAction} accessibilityLabel="Login">
-                            <ButtonText>Login</ButtonText>
-                        </Button>
+                        <TouchableOpacity onPress={loginAction} accessibilityLabel="Login" style={styles.button}>
+                            <Text style={styles.buttonText}>Login</Text>
+                        </TouchableOpacity>
                     )}
                     {isLoading && <ActivityIndicator size="large" />}
-                </FormContainer>
-            </Container>
-        </SafeArea>
+                </View>
+            </View>
+        </SafeAreaView>
     );
 }
 
-const SafeArea = styled.SafeAreaView`
-  flex: 1;
-  background-color: #fff;
-`;
-
-const Container = styled.View`
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-`;
-
-const LogoContainer = styled.View`
-  margin-bottom: 30px;
-`;
+const styles = StyleSheet.create({
+    safeArea: {
+        backgroundColor: colorConstants.backgroundColor,
+        flex: 1,
+    },
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    logoContainer: {
+        marginBottom: 30,
+    },
+    formContainer: {
+        width: '100%',
+    },
+    button: {
+        backgroundColor: colorConstants.btnColor,
+        padding: 15,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 15,
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    }
+});
 
 const Logo = styled.Image`
   width: 200px;
   height: 80px;
 `;
 
-const FormContainer = styled.View`
-  width: 100%;
-`;
-
-const Button = styled.TouchableOpacity`
-  background-color: #007bff;
-  padding: 15px;
-  border-radius: 8px;
-  align-items: center;
-  margin-top: 15px;
-`;
-
-const ButtonText = styled.Text`
-  color: #fff;
-  font-size: 16px;
-  font-weight: bold;
-`;
