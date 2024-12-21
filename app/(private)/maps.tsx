@@ -1,16 +1,16 @@
-import { Text, View, StyleSheet, Pressable, useWindowDimensions, FlatList } from "react-native"
+import { Text, View, StyleSheet, Pressable, useWindowDimensions, FlatList, StatusBar } from "react-native"
 import * as Location from 'expo-location'
 import MapView, { Marker, MapPressEvent } from 'react-native-maps'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useContext, useEffect, useState } from "react"
-import AppBarComponent from "@/components/appBarComponent"
-import { calculateRegion } from "@/utils/calculateRegion"
-import { getLocation } from "@/utils/requestLocationPermission"
+import AppBarComponent from "../../components/appBarComponent"
+import { calculateRegion } from "../../utils/calculateRegion"
+import { getLocation } from "../../utils/requestLocationPermission"
 import { router } from "expo-router"
-import MarkerComponent from "@/components/markerComponent"
-import { colorConstants } from "@/styles/Global.styles"
-import { UserContext } from "@/store/UserStore"
-import env from '@/constants/env';
+import MarkerComponent from "../../components/markerComponent"
+import { colorConstants } from "../../styles/Global.styles"
+import { UserContext } from "../../store/UserStore"
+import env from '../../constants/env';
 import { ActivityIndicator } from "react-native-paper"
 
 // fetch delete
@@ -126,6 +126,7 @@ export default function Maps() {
 
     return (
         <View style={styles.fullContainer}>
+            <StatusBar backgroundColor={styles.statusBar.backgroundColor} barStyle="light-content" />
             <AppBarComponent
                 title="Projeto Final - React Native"
                 showBack={true}
@@ -149,7 +150,7 @@ export default function Maps() {
                         contentContainerStyle={styles.contentContainer}
                     />
                 )}
-                <Text>Olá {userAuth?.email} !</Text>
+                <Text style={styles.UserMsg}>Olá {userAuth?.email} !</Text>
                 <MapView
                     showsUserLocation
                     style={[styles.locationMapView, isTabletLandscape && styles.tabletMapView]}
@@ -215,12 +216,18 @@ const styles = StyleSheet.create({
         height: 50,
         right: 5,
         bottom: 10,
-        backgroundColor: 'orange',
+        backgroundColor: colorConstants.fab,
         padding: 10,
         borderRadius: 50,
     },
     fabText: {
         fontSize: 20,
         alignSelf: 'center',
+    },
+    statusBar: {
+        backgroundColor: colorConstants.appBarColor,
+    },
+    UserMsg: {
+        color: colorConstants.userMsg,
     },
 })

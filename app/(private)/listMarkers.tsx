@@ -1,9 +1,10 @@
-import AppBarComponent from '@/components/appBarComponent'
-import MarkerComponent from '@/components/markerComponent'
+import AppBarComponent from '../../components/appBarComponent'
+import MarkerComponent from '../../components/markerComponent'
+import { colorConstants } from '../../styles/Global.styles'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { router } from 'expo-router'
 import { useEffect, useState } from 'react'
-import { FlatList, View, StyleSheet } from 'react-native'
+import { FlatList, View, StyleSheet, StatusBar } from 'react-native'
 
 export default function ListMarkers() {
 
@@ -24,7 +25,8 @@ export default function ListMarkers() {
     }
 
     return (
-        <View>
+        <View style={styles.fullContainer}>
+            <StatusBar backgroundColor={styles.statusBar.backgroundColor} barStyle="light-content" />
             <AppBarComponent
                 title="Todas as localizações"
                 showBack={true}
@@ -47,10 +49,17 @@ export default function ListMarkers() {
 }
 
 const styles = StyleSheet.create({
+    fullContainer: {
+        backgroundColor: colorConstants.backgroundColor,
+        flex: 1,
+    },
     container: {
         flex: 1,
     },
     contentContainer: {
         paddingBottom: 40,
+    },
+    statusBar: {
+        backgroundColor: colorConstants.appBarColor,
     },
 })

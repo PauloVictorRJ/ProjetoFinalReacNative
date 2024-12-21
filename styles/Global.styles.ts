@@ -1,4 +1,4 @@
-import { Appearance } from "react-native";
+import { Appearance, Pressable } from "react-native";
 
 const isDarkMode = Appearance.getColorScheme() == 'dark'
 const fontConstants = {
@@ -14,6 +14,15 @@ const colorConstants = {
     formTextWarningColor: isDarkMode ? "#edb007" : "#000000",
     formTextColor: isDarkMode ? "#ffffff" : "#000000",
     btnColor: isDarkMode ? "#383f52" : "#000000",
+    appBarColor: isDarkMode ? "#023047" : "#ffffff",
+    appBarTextColor: isDarkMode ? "#ffffff" : "#000000",
+    appBarBackBtnColor: isDarkMode ? "#ffffff" : "#000000",
+    appBarMenuBtnColor: isDarkMode ? "#ffffff" : "#000000",
+    userMsg: isDarkMode ? "#ffffff" : "#000000",
+    fab: isDarkMode ? 'gray' : 'orange',
+    picker: isDarkMode ? "#ffffff" : "#000000",
+    text: isDarkMode ? "#ffffff" : "#000000",
+    pressableBackgroundColor: isDarkMode ? 'gray' : 'blue',
 }
 
 const sizeConstants = {

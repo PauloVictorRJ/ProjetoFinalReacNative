@@ -3,11 +3,11 @@ import InputCustomUserName from '../components/InputCustomUserName';
 import InputCustomUserPassword from '../components/InputCustomUserPassword';
 import React, { useContext, useState } from 'react';
 import { router } from 'expo-router';
-import { Alert, ActivityIndicator, StyleSheet, SafeAreaView, View, TouchableOpacity, Text } from 'react-native';
+import { Alert, ActivityIndicator, StyleSheet, SafeAreaView, View, TouchableOpacity, Text, StatusBar } from 'react-native';
 import logo from '../assets/images/infnet.png';
 import { UserActionType, UserContext, UserDispacthContext } from '../store/UserStore';
 import signInWithPassword from './apiAuthService';
-import { colorConstants } from "../styles/Global.styles"
+import { colorConstants, fontConstants } from "../styles/Global.styles"
 
 export default function Login() {
     const MIN_USERNAME_LENGTH = 8;
@@ -74,6 +74,7 @@ export default function Login() {
 
     return (
         <SafeAreaView style={styles.safeArea}>
+            <StatusBar backgroundColor={styles.statusBar.backgroundColor} barStyle="light-content" />
             <View style={styles.container}>
                 <View style={styles.logoContainer}>
                     <Logo source={logo} resizeMode="contain" />
@@ -132,9 +133,12 @@ const styles = StyleSheet.create({
         marginTop: 15,
     },
     buttonText: {
+        fontFamily: fontConstants.fontFamilyMystery,
         color: '#fff',
         fontSize: 16,
-        fontWeight: 'bold',
+    },
+    statusBar: {
+        backgroundColor: colorConstants.appBarColor,
     }
 });
 

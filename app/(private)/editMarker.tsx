@@ -1,9 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import React, { useEffect, useState } from "react"
-import { Text, View, StyleSheet, TextInput, Pressable, Alert } from "react-native"
+import { Text, View, StyleSheet, TextInput, Pressable, Alert, StatusBar } from "react-native"
 import { router, useLocalSearchParams } from "expo-router"
-import AppBarComponent from "@/components/appBarComponent"
+import AppBarComponent from "../../components/appBarComponent"
 import { Picker } from "@react-native-picker/picker"
+import { colorConstants, fontConstants } from "../../styles/Global.styles"
 
 export default function EditMarker() {
     const [marker, setMarker] = useState<any>(null)
@@ -91,34 +92,38 @@ export default function EditMarker() {
     };
 
     return (
-        <View>
+        <View style={styles.fullContainer}>
+            <StatusBar backgroundColor={styles.statusBar.backgroundColor} barStyle="light-content" />
             <AppBarComponent
                 title="Editar localização"
                 showBack={true}
                 showList={false} />
             <View style={styles.formContainer}>
-                <Text> Nome:</Text>
+                <Text style={styles.text}> Nome:</Text>
                 <TextInput
                     style={styles.formTextInput}
                     placeholder={marker.nome}
                     value={inputNome}
                     onChangeText={setInputNome}
+                    placeholderTextColor={colorConstants.formTextColor}
                 />
-                <Text> Latitude:</Text>
+                <Text style={styles.text}> Latitude:</Text>
                 <TextInput
                     style={styles.formTextInput}
                     placeholder={String(marker.latLng.latitude)}
                     value={inputLatitude}
                     onChangeText={setInputLatitude}
+                    placeholderTextColor={colorConstants.formTextColor}
                 />
-                <Text> Longitude:</Text>
+                <Text style={styles.text}> Longitude:</Text>
                 <TextInput
                     style={styles.formTextInput}
                     placeholder={String(marker.latLng.longitude)}
                     value={inputLongitude}
                     onChangeText={setInputLongitude}
+                    placeholderTextColor={colorConstants.formTextColor}
                 />
-                <Text> Cor:</Text>
+                <Text style={styles.text}> Cor:</Text>
                 <View style={styles.formPickerContainer}>
                     <Picker
                         style={styles.formPicker}
@@ -139,22 +144,30 @@ export default function EditMarker() {
 }
 
 const styles = StyleSheet.create({
+    fullContainer: {
+        backgroundColor: colorConstants.backgroundColor,
+        flex: 1,
+    },
     formContainer: {
         paddingVertical: 5,
         paddingHorizontal: 10,
     },
     formTextInput: {
-        margin: 4,
-        padding: 8,
-        borderRadius: 5,
-        backgroundColor: "#d6d0d0"
+        backgroundColor: colorConstants.formBackgroundColor,
+        borderRadius: 8,
+        padding: 12,
+        fontSize: 16,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        color: colorConstants.formTextColor
     },
     text: {
-        fontSize: 16,
-        textAlign: "center",
+        fontSize: 14,
+        color: colorConstants.text
     },
     formPicker: {
         flex: 1,
+        color: colorConstants.picker
     },
     formPickerContainer: {
         flexDirection: "row",
@@ -162,12 +175,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     formPressableSubmit: {
-        backgroundColor: "#8cd867",
+        backgroundColor: colorConstants.pressableBackgroundColor,
         margin: 20,
         padding: 5,
         borderRadius: 5,
     },
     formPressableSubmitLabel: {
+        fontFamily: fontConstants.fontFamilyMystery,
         textAlign: "center",
     },
     formPressableRemove: {
@@ -175,5 +189,8 @@ const styles = StyleSheet.create({
         margin: 20,
         padding: 5,
         borderRadius: 5,
-    }
+    },
+    statusBar: {
+        backgroundColor: colorConstants.appBarColor,
+    },
 })

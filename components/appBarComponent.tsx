@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Appbar } from 'react-native-paper'
 import { StyleSheet } from 'react-native'
 import { router } from 'expo-router'
-import { fontConstants } from '@/styles/Global.styles'
+import { colorConstants, fontConstants } from '../styles/Global.styles'
 
 interface AppBarComponentProps {
     title: string
@@ -26,11 +26,23 @@ export default function AppBarComponent({
 
     return (
         <Appbar.Header style={styles.appBar}>
-            {showBack && <Appbar.BackAction onPress={BackAction} />}
+            {showBack && (
+                <Appbar.BackAction 
+                    onPress={BackAction} 
+                    iconColor={colorConstants.appBarBackBtnColor}
+                />
+            )}
             <Appbar.Content
                 title={title}
-                titleStyle={styles.title} />
-            {showList && <Appbar.Action icon="menu" onPress={MenuAction} />}
+                titleStyle={styles.title} 
+            />
+            {showList && (
+                <Appbar.Action 
+                    icon="menu" 
+                    onPress={MenuAction} 
+                    iconColor={colorConstants.appBarMenuBtnColor}
+                />
+            )}
         </Appbar.Header>
     )
 }
@@ -38,10 +50,11 @@ export default function AppBarComponent({
 const styles = StyleSheet.create({
     appBar: {
         height: 40,
-        backgroundColor: 'orange'
+        backgroundColor: colorConstants.appBarColor
     },
     title: {
         fontSize: 18,
+        color: colorConstants.appBarTextColor,
         fontFamily: fontConstants.fontFamilyMystery
     }
 })
