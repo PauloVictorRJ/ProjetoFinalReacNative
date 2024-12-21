@@ -1,7 +1,6 @@
 import { Text, View, StyleSheet, Pressable, useWindowDimensions, FlatList, StatusBar } from "react-native"
 import * as Location from 'expo-location'
 import MapView, { Marker, MapPressEvent } from 'react-native-maps'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useContext, useEffect, useState } from "react"
 import AppBarComponent from "../../components/appBarComponent"
 import { calculateRegion } from "../../utils/calculateRegion"
@@ -58,19 +57,6 @@ export default function Maps() {
             setLoading(false);
         }
     };
-
-
-    // const getMarkersFromAsyncStorage = async () => {
-    //     setLoading(true);
-    //     console.log('pegando dados do Assync')
-    //     const markersStorage = await AsyncStorage.getItem('markers')
-    //     let markersList: Array<any> = []
-    //     if (markersStorage) {
-    //         markersList = JSON.parse(markersStorage)
-    //         console.log('Dados recebidos do Assync: ' + markersList)
-    //         setMarkers(markersList)
-    //     }
-    // }
 
     const refreshMarkersOnFirebase = async () => {
         try {
@@ -130,25 +116,6 @@ export default function Maps() {
         }
     }
 
-
-    // const handleMapPress = async (mapPress: MapPressEvent) => {
-    //     const { coordinate } = mapPress.nativeEvent
-    //     const markersStorage = await AsyncStorage.getItem('markers')
-    //     let markersList: Array<any> = []
-    //     if (markersStorage) {
-    //         markersList = JSON.parse(markersStorage)
-    //     }
-    //     const markerName = `Marcador ${markersList.length + 1}`
-    //     const newMarker = {
-    //         nome: markerName,
-    //         latLng: coordinate,
-    //         cor: 'red',
-    //     }
-    //     markersList.push(newMarker)
-    //     await AsyncStorage.setItem('markers', JSON.stringify(markersList))
-    //     setMarkers(markersList)
-    // }
-
     const markerPress = (id: string) => {
         router.push(`/editMarker?index=${id}`);
     }
@@ -176,10 +143,14 @@ export default function Maps() {
                         renderItem={({ item, index }) => {
                             return (
                                 <MarkerComponent
-                                    onPress={() => markerPress(item.id)}
+                                    onPress={() => {
+                                        markerPress(item.id)
+                                        console.log('saiu do MarkerComponent')
+                                    }}
                                     nome={item.nome}
                                     latLng={item.latLng}
                                     cor={item.cor}
+                                    id={item.id}
                                 />
                             );
                         }}
@@ -201,7 +172,10 @@ export default function Maps() {
                         return (
                             <Marker
                                 draggable
-                                onPress={() => markerPress(marker.id)}
+                                onPress={() => {
+                                    markerPress(marker.id)
+                                    console.log('saiu do Marker com o id:' + marker.id)
+                                }}
                                 coordinate={marker.latLng}
                                 pinColor={marker.cor}
                                 key={index}

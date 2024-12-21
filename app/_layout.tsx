@@ -32,11 +32,9 @@ export default function RootLayout() {
 
   return (
     <UserProvider>
-      <SQLiteProvider databaseName={database_name} onInit={migrateDb}>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <Slot />
         </ThemeProvider>
-      </SQLiteProvider>
     </UserProvider>
   );
 }

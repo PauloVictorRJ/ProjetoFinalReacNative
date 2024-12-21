@@ -1,24 +1,25 @@
 import AppBarComponent from '../../components/appBarComponent'
 import MarkerComponent from '../../components/markerComponent'
 import { colorConstants } from '../../styles/Global.styles'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { router } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { FlatList, View, StyleSheet, StatusBar } from 'react-native'
+import { loadMarkersListFromFirebase } from '../../network/firebaseLoadListMarkers';
 
 export default function ListMarkers() {
+    useEffect(() => {
+        getMarkersFromFirebase();
+    }, []);
 
     const [markersList, setMarkersList] = useState<Array<any>>([])
 
-    useEffect(() => {
-        (async () => {
-            const markersStorage = await AsyncStorage.getItem('markers')
-            if (markersStorage) {
-                const parsedMarkers = JSON.parse(markersStorage)
-                setMarkersList(parsedMarkers)
-            }
-        })()
-    }, [])
+    const getMarkersFromFirebase = async () => {
+        try {
+            const fetchedMarkers = await loadMarkersListFromFirebase();
+            setMarkersList(fetchedMarkers);
+        } catch (error) {
+        }
+    };
 
     const markerPress = (index: number) => {
         router.push(`/editMarker?index=${index}`)
@@ -34,12 +35,13 @@ export default function ListMarkers() {
             <FlatList
                 data={markersList}
                 keyExtractor={(item) => item.id}
-                renderItem={({ item, index }) => (
+                renderItem={({ item }) => (
                     <MarkerComponent
-                        onPress={() => markerPress(index)}
+                        onPress={() => markerPress(item.id)}
                         nome={item.nome}
                         latLng={item.latLng}
                         cor={item.cor}
+                        id={item.id}
                     />
                 )}
                 contentContainerStyle={styles.contentContainer}

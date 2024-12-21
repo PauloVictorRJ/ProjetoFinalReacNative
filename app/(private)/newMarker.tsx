@@ -1,6 +1,4 @@
 import AppBarComponent from "../../components/appBarComponent"
-import { select_all_markers, table_name } from "../../database/AppDatabase"
-import AsyncStorage from "@react-native-async-storage/async-storage"
 import { Picker } from "@react-native-picker/picker"
 import { router } from "expo-router"
 import { useSQLiteContext } from "expo-sqlite"
@@ -43,34 +41,6 @@ export default function NewMarker() {
                 longitude: longitude
             }
         }
-
-        try {
-            const markersStorage = await AsyncStorage.getItem("markers")
-            const parsedMarkers = markersStorage ? JSON.parse(markersStorage) : []
-            parsedMarkers.push(newMarker)
-            await AsyncStorage.setItem("markers", JSON.stringify(parsedMarkers))
-            await saveMarkerOnSQLite(newMarker)
-            await saveMarkerOnFirebase(newMarker)
-            router.back()
-            Alert.alert("Sucesso", "O marcador foi salvo com sucesso.")
-        } catch (error) {
-            Alert.alert("Erro", "Ocorreu um erro ao salvar o marcador.")
-        }
-    }
-
-    const saveMarkerOnSQLite = async (marker: { nome: string; cor: string; latLng: { latitude: number; longitude: number } }) => {
-        try {
-            await db.runAsync(
-                `INSERT INTO ${table_name} (nome, cor, latitude, longitude) VALUES (?, ?, ?, ?)`,
-                [marker.nome, marker.cor, marker.latLng.latitude, marker.latLng.longitude]
-            )
-            const teste = await db.getAllAsync(select_all_markers)
-
-            console.log(teste)
-        } catch (error) {
-            console.error("Erro ao salvar no SQLite:", error)
-            Alert.alert("Erro", "Não foi possível salvar o marcador no banco de dados.")
-        }
     }
 
     const saveMarkerOnFirebase = async (marker: { nome: string; cor: string; latLng: { latitude: number; longitude: number } }) => {
@@ -83,7 +53,6 @@ export default function NewMarker() {
                 )
             })
 
-            //console.log(teste)
         } catch (error) {
             console.error("Erro ao salvar no Firebase:", error)
             Alert.alert("Erro", "Não foi possível salvar o marcador no banco de dados.")

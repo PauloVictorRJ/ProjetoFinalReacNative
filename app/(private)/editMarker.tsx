@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage"
 import React, { useEffect, useState } from "react"
 import { Text, View, StyleSheet, TextInput, Pressable, Alert, StatusBar } from "react-native"
 import { router, useLocalSearchParams } from "expo-router"
@@ -26,7 +25,6 @@ export default function EditMarker() {
 
     useEffect(() => {
         (async () => {
-            console.log(id)
             const loadedMarker = await firebaseLoadMarkerById(id)
             if (loadedMarker) {
                 setMarker(loadedMarker)
@@ -39,22 +37,6 @@ export default function EditMarker() {
             }
         })()
     }, [id])
-
-    // useEffect(() => {
-    //     (async () => {
-    //         console.log(index)
-    //         firebaseLoadMarkerById(index)
-    // const markersStorage = await AsyncStorage.getItem("markers")
-    // if (markersStorage) {
-    //     const parsedMarkers = JSON.parse(markersStorage);
-    //     if (index && parsedMarkers[Number(index)]) {
-    //         const loadedMarker = parsedMarkers[Number(index)]
-    //         setMarker(parsedMarkers[Number(index)])
-    //         setInputColors(loadedMarker.cor || "")
-    //     }
-    // }
-    //     })()
-    // }, [])
 
     if (!marker) {
         return <Text>Loading...</Text>
@@ -82,7 +64,6 @@ export default function EditMarker() {
                 longitude: longitude || marker.latLng.longitude
             }
         }
-
         const success = await editMarkerFirebase(updatedMarker)
 
         if (success) {
@@ -117,20 +98,6 @@ export default function EditMarker() {
             ]
         );
     };
-
-    // const removeMarker = async () => {
-    //     const markersStorage = await AsyncStorage.getItem("markers")
-    //     if (markersStorage) {
-    //         const parsedMarkers = JSON.parse(markersStorage)
-    //         if (index && parsedMarkers[Number(index)]) {
-    //             parsedMarkers.splice(Number(index), 1)
-    //             await AsyncStorage.setItem("markers", JSON.stringify(parsedMarkers))
-    //             Alert.alert("O marcador foi removido com sucesso.")
-    //             setMarker(null)
-    //             router.back()
-    //         }
-    //     }
-    // };
 
     return (
         <View style={styles.fullContainer}>
@@ -223,6 +190,7 @@ const styles = StyleSheet.create({
     },
     formPressableSubmitLabel: {
         fontFamily: fontConstants.fontFamilyMystery,
+        color: colorConstants.text,
         textAlign: "center",
     },
     formPressableRemove: {

@@ -21,8 +21,8 @@ const colorConstants = {
     userMsg: isDarkMode ? "#ffffff" : "#000000",
     fab: isDarkMode ? 'gray' : 'orange',
     picker: isDarkMode ? "#ffffff" : "#000000",
-    text: isDarkMode ? "#ffffff" : "#000000",
-    pressableBackgroundColor: isDarkMode ? 'gray' : 'blue',
+    text: isDarkMode ? "#ffffff" : "white",
+    pressableBackgroundColor: isDarkMode ? 'gray' : 'green',
 }
 
 const sizeConstants = {
