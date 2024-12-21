@@ -12,10 +12,8 @@ import { colorConstants } from "../../styles/Global.styles"
 import { UserContext } from "../../store/UserStore"
 import env from '../../constants/env';
 import { ActivityIndicator } from "react-native-paper"
-
-// fetch delete
-// refreshingAction
-//
+import { saveMarkerFirebase } from "../../network/firebaseSaveMarker";
+import { loadMarkersListFromFirebase } from '../../network/firebaseLoadListMarkers';
 
 export default function Maps() {
     const userAuth = useContext(UserContext)
@@ -29,64 +27,82 @@ export default function Maps() {
     const [isLoading, setLoading] = useState(false)
     const [requestMessage, setRequestMessage] = useState<String | null>(null)
 
-    const getMarkersApi = async () => {
+    useEffect(() => {
+        fetchLocation()
+        fetchData();
+    }, []);
+
+    const fetchLocation = async () => {
+        try {
+            const location = await getLocation()
+            setLocation(location)
+        } catch (error: any) {
+            setMessage(error.message)
+        }
+    };
+
+    const fetchData = async () => {
+        //await getMarkersFromAsyncStorage()
+        await getMarkersFromFirebase()
+        //refreshMarkersOnFirebase()
+    };
+
+    const getMarkersFromFirebase = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${env.DB_URL}/markers.json`);
-            if (!response.ok) {
-                throw new Error(`Erro na requisição: ${response.status}`);
-            }
-            const data = await response.json();
-            console.log("Dados recebidos:", data);
-
-            const markers = Object.keys(data).map(key => ({
-                id: key,
-                nome: data[key][0],
-                cor: data[key][1],
-                latLng: {
-                    latitude: data[key][2],
-                    longitude: data[key][3],
-                },
-            }));
-
-            setMarkers(markers);
+            const fetchedMarkers = await loadMarkersListFromFirebase();
+            setMarkers(fetchedMarkers);
         } catch (error) {
-            const errorMessage = (error as Error).message;
-            console.error("Erro ao obter marcadores:", errorMessage);
-            setRequestMessage(errorMessage);
-        }
-        finally {
+            setRequestMessage("Erro ao carregar os marcadores");
+        } finally {
             setLoading(false);
         }
     };
 
 
-    useEffect(() => {
-        getMarkersApi()
-    }, [])
+    // const getMarkersFromAsyncStorage = async () => {
+    //     setLoading(true);
+    //     console.log('pegando dados do Assync')
+    //     const markersStorage = await AsyncStorage.getItem('markers')
+    //     let markersList: Array<any> = []
+    //     if (markersStorage) {
+    //         markersList = JSON.parse(markersStorage)
+    //         console.log('Dados recebidos do Assync: ' + markersList)
+    //         setMarkers(markersList)
+    //     }
+    // }
 
-    useEffect(() => {
-        const fetchLocation = async () => {
-            try {
-                const location = await getLocation()
-                setLocation(location)
-            } catch (error: any) {
-                setMessage(error.message)
+    const refreshMarkersOnFirebase = async () => {
+        try {
+            if (markers.length === 0) {
+                return;
             }
-        };
-        fetchLocation()
-    }, [])
+            const requests = markers.map(async (marker: { id?: string, nome: string; cor: string; latLng: { latitude: number; longitude: number } }) => {
+                const response = await fetch(`${env.DB_URL}/markers.json`, {
+                    method: 'POST',
+                    headers: { 'Content-type': 'application/json' },
+                    body: JSON.stringify([
+                        marker.id,
+                        marker.nome,
+                        marker.cor,
+                        marker.latLng.latitude,
+                        marker.latLng.longitude,
+                    ]),
+                });
 
-    // useEffect(() => {
-    //     (async () => {
-    //         const markersStorage = await AsyncStorage.getItem('markers')
-    //         let markersList: Array<any> = []
-    //         if (markersStorage) {
-    //             markersList = JSON.parse(markersStorage)
-    //             setMarkers(markersList)
-    //         }
-    //     })()
-    // }, [])
+                if (!response.ok) {
+                    throw new Error(`Erro ao enviar o marcador: ${marker.nome}`);
+                }
+            });
+
+            await Promise.all(requests);
+            setRequestMessage('Marcadores atualizados com sucesso no Firebase!');
+        } catch (error) {
+            setRequestMessage(`Erro ao atualizar os marcadores: ${(error as Error).message}`);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     if (message) {
         return <Text>{message}</Text>
@@ -100,25 +116,43 @@ export default function Maps() {
 
     const handleMapPress = async (mapPress: MapPressEvent) => {
         const { coordinate } = mapPress.nativeEvent
-        const markersStorage = await AsyncStorage.getItem('markers')
-        let markersList: Array<any> = []
-        if (markersStorage) {
-            markersList = JSON.parse(markersStorage)
-        }
-        const markerName = `Marcador ${markersList.length + 1}`
+
         const newMarker = {
-            nome: markerName,
-            latLng: coordinate,
+            nome: `Marcador ${markers.length + 1}`,
             cor: 'red',
+            latLng: coordinate,
+            id: `marker-${Date.now()}`,
         }
-        markersList.push(newMarker)
-        await AsyncStorage.setItem('markers', JSON.stringify(markersList))
-        setMarkers(markersList)
+
+        const isSaved = await saveMarkerFirebase(newMarker)
+        if (isSaved) {
+            setMarkers(prevMarkers => [...prevMarkers, newMarker])
+        }
     }
 
-    const markerPress = (index: number) => {
-        router.push(`/editMarker?index=${index}`)
+
+    // const handleMapPress = async (mapPress: MapPressEvent) => {
+    //     const { coordinate } = mapPress.nativeEvent
+    //     const markersStorage = await AsyncStorage.getItem('markers')
+    //     let markersList: Array<any> = []
+    //     if (markersStorage) {
+    //         markersList = JSON.parse(markersStorage)
+    //     }
+    //     const markerName = `Marcador ${markersList.length + 1}`
+    //     const newMarker = {
+    //         nome: markerName,
+    //         latLng: coordinate,
+    //         cor: 'red',
+    //     }
+    //     markersList.push(newMarker)
+    //     await AsyncStorage.setItem('markers', JSON.stringify(markersList))
+    //     setMarkers(markersList)
+    // }
+
+    const markerPress = (id: string) => {
+        router.push(`/editMarker?index=${id}`);
     }
+
 
     const fabPress = () => {
         router.push('/newMarker')
@@ -139,16 +173,19 @@ export default function Maps() {
                     <FlatList
                         data={markers}
                         keyExtractor={(item, index) => index.toString()}
-                        renderItem={({ item, index }) => (
-                            <MarkerComponent
-                                onPress={() => markerPress(index)}
-                                nome={item.nome}
-                                latLng={item.latLng}
-                                cor={item.cor}
-                            />
-                        )}
+                        renderItem={({ item, index }) => {
+                            return (
+                                <MarkerComponent
+                                    onPress={() => markerPress(item.id)}
+                                    nome={item.nome}
+                                    latLng={item.latLng}
+                                    cor={item.cor}
+                                />
+                            );
+                        }}
                         contentContainerStyle={styles.contentContainer}
                     />
+
                 )}
                 <Text style={styles.UserMsg}>Olá {userAuth?.email} !</Text>
                 <MapView
@@ -164,7 +201,7 @@ export default function Maps() {
                         return (
                             <Marker
                                 draggable
-                                onPress={() => markerPress(index)}
+                                onPress={() => markerPress(marker.id)}
                                 coordinate={marker.latLng}
                                 pinColor={marker.cor}
                                 key={index}

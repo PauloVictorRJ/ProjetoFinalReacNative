@@ -33,7 +33,7 @@ export default function ListMarkers() {
                 showList={false} />
             <FlatList
                 data={markersList}
-                keyExtractor={(item, index) => item.toString()}
+                keyExtractor={(item) => item.id}
                 renderItem={({ item, index }) => (
                     <MarkerComponent
                         onPress={() => markerPress(index)}

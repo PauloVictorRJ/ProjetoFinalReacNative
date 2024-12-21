@@ -5,10 +5,13 @@ import { router, useLocalSearchParams } from "expo-router"
 import AppBarComponent from "../../components/appBarComponent"
 import { Picker } from "@react-native-picker/picker"
 import { colorConstants, fontConstants } from "../../styles/Global.styles"
+import { editMarkerFirebase } from "../../network/firebaseEditMarker"
+import { firebaseLoadMarkerById } from "../../network/firebaseLoadMarkerById"
+import { firebaseDelMarkerById } from "../../network/firebaseDelMarkerById"
 
 export default function EditMarker() {
     const [marker, setMarker] = useState<any>(null)
-    const { index } = useLocalSearchParams()
+    const { index } = useLocalSearchParams();
     const [inputColors, setInputColors] = useState("")
     const [inputNome, setInputNome] = useState("")
     const [inputLatitude, setInputLatitude] = useState(marker?.latLng.latitude ? String(marker.latLng.latitude) : "")
@@ -19,26 +22,45 @@ export default function EditMarker() {
         { label: "Verde", value: "green" },
         { label: "Amarelo", value: "yellow" }
     ]
+    const id = Array.isArray(index) ? index[0] : index
 
     useEffect(() => {
         (async () => {
-            const markersStorage = await AsyncStorage.getItem("markers")
-            if (markersStorage) {
-                const parsedMarkers = JSON.parse(markersStorage);
-                if (index && parsedMarkers[Number(index)]) {
-                    const loadedMarker = parsedMarkers[Number(index)]
-                    setMarker(parsedMarkers[Number(index)])
-                    setInputColors(loadedMarker.cor || "")
-                }
+            console.log(id)
+            const loadedMarker = await firebaseLoadMarkerById(id)
+            if (loadedMarker) {
+                setMarker(loadedMarker)
+                setInputNome(loadedMarker.nome || "")
+                setInputColors(loadedMarker.cor || "")
+                setInputLatitude(String(loadedMarker.latLng.latitude))
+                setInputLongitude(String(loadedMarker.latLng.longitude))
+            } else {
+                router.back()
             }
         })()
-    }, [])
+    }, [id])
+
+    // useEffect(() => {
+    //     (async () => {
+    //         console.log(index)
+    //         firebaseLoadMarkerById(index)
+    // const markersStorage = await AsyncStorage.getItem("markers")
+    // if (markersStorage) {
+    //     const parsedMarkers = JSON.parse(markersStorage);
+    //     if (index && parsedMarkers[Number(index)]) {
+    //         const loadedMarker = parsedMarkers[Number(index)]
+    //         setMarker(parsedMarkers[Number(index)])
+    //         setInputColors(loadedMarker.cor || "")
+    //     }
+    // }
+    //     })()
+    // }, [])
 
     if (!marker) {
         return <Text>Loading...</Text>
     }
 
-    const saveMarker = async () => {
+    const editMarker = async () => {
         const latitude = parseFloat(inputLatitude)
         const longitude = parseFloat(inputLongitude)
 
@@ -51,45 +73,64 @@ export default function EditMarker() {
             return
         }
 
-        const markersStorage = await AsyncStorage.getItem("markers")
-        if (markersStorage) {
-            const parsedMarkers = JSON.parse(markersStorage)
-
-            if (index && parsedMarkers[Number(index)]) {
-                const updatedMarker = { ...parsedMarkers[Number(index)] }
-
-                if (inputNome) updatedMarker.nome = inputNome
-                if (inputLatitude) updatedMarker.latLng.latitude = latitude
-                if (inputLongitude) updatedMarker.latLng.longitude = longitude
-                if (inputColors) updatedMarker.cor = inputColors
-
-                parsedMarkers[Number(index)] = updatedMarker
-
-                await AsyncStorage.setItem("markers", JSON.stringify(parsedMarkers))
-                Alert.alert("Sucesso", "O marcador foi atualizado com sucesso.")
-                router.back()
-            } else {
-                Alert.alert("Erro", "Não foi possível encontrar o marcador para atualizar.")
+        const updatedMarker = {
+            id: marker.id,
+            nome: inputNome || marker.nome,
+            cor: inputColors || marker.cor,
+            latLng: {
+                latitude: latitude || marker.latLng.latitude,
+                longitude: longitude || marker.latLng.longitude
             }
+        }
+
+        const success = await editMarkerFirebase(updatedMarker)
+
+        if (success) {
+            Alert.alert("Sucesso", "O marcador foi atualizado com sucesso.")
+            router.back()
         } else {
-            Alert.alert("Erro", "Nenhum marcador encontrado no armazenamento.")
+            Alert.alert("Erro", "Não foi possível atualizar o marcador.")
         }
     };
-
 
     const removeMarker = async () => {
-        const markersStorage = await AsyncStorage.getItem("markers")
-        if (markersStorage) {
-            const parsedMarkers = JSON.parse(markersStorage)
-            if (index && parsedMarkers[Number(index)]) {
-                parsedMarkers.splice(Number(index), 1)
-                await AsyncStorage.setItem("markers", JSON.stringify(parsedMarkers))
-                Alert.alert("O marcador foi removido com sucesso.")
-                setMarker(null)
-                router.back()
-            }
-        }
+        Alert.alert(
+            "Confirmar exclusão",
+            "Tem certeza que deseja remover este marcador?",
+            [
+                {
+                    text: "Cancelar",
+                    style: "cancel",
+                },
+                {
+                    text: "Remover",
+                    onPress: async () => {
+                        const success = await firebaseDelMarkerById(marker.id)
+                        if (success) {
+                            Alert.alert("Sucesso", "O marcador foi removido com sucesso.");
+                            router.back();
+                        } else {
+                            Alert.alert("Erro", "Não foi possível remover o marcador.");
+                        }
+                    },
+                },
+            ]
+        );
     };
+
+    // const removeMarker = async () => {
+    //     const markersStorage = await AsyncStorage.getItem("markers")
+    //     if (markersStorage) {
+    //         const parsedMarkers = JSON.parse(markersStorage)
+    //         if (index && parsedMarkers[Number(index)]) {
+    //             parsedMarkers.splice(Number(index), 1)
+    //             await AsyncStorage.setItem("markers", JSON.stringify(parsedMarkers))
+    //             Alert.alert("O marcador foi removido com sucesso.")
+    //             setMarker(null)
+    //             router.back()
+    //         }
+    //     }
+    // };
 
     return (
         <View style={styles.fullContainer}>
@@ -132,7 +173,7 @@ export default function EditMarker() {
                         {colorList.map((color, index) => <Picker.Item {...color} key={index} />)}
                     </Picker>
                 </View>
-                <Pressable style={styles.formPressableSubmit} onPress={saveMarker}>
+                <Pressable style={styles.formPressableSubmit} onPress={editMarker}>
                     <Text style={styles.formPressableSubmitLabel}>Salvar</Text>
                 </Pressable>
                 <Pressable style={styles.formPressableRemove} onPress={removeMarker}>
